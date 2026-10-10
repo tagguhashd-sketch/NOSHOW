@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ReturnPulse — AI-driven no-show reminders for clinics</title>
+<meta name="description" content="ReturnPulse is an AI-driven no-show reminder desk for clinics. Track follow-up checkups, colour-code urgency and send prefilled WhatsApp / SMS reminders. 100% on-device." />
+<meta name="theme-color" content="#0f766e" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="assets/logo.svg" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════ ONBOARDING ══════════════════════════ -->
+<div class="onboarding" id="onboarding" hidden>
+  <div class="ob-card">
+    <div class="ob-logo">
+      <img src="assets/logo.svg" alt="" width="72" height="72" />
+    </div>
+    <h1 class="ob-title">ReturnPulse</h1>
+    <p class="ob-tag"><span class="ai-pill"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4L12 2z"/></svg>AI-driven</span> no-show reminder desk for your clinic</p>
+
+    <form id="obForm" class="ob-form" autocomplete="off">
+      <label class="field">
+        <span class="field-label">Clinic name <em>*</em></span>
+        <input id="obClinic" class="input" type="text" placeholder="e.g. Sunrise Multi-Speciality Clinic" required maxlength="60" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">Clinic phone <span class="opt">(shown in reminders)</span></span>
+        <input id="obClinicPhone" class="input" type="tel" placeholder="+91 98765 43210" maxlength="24" />
+      </label>
+
+      <div class="ob-actions">
+        <button type="submit" class="btn btn-primary btn-lg">
+          Start
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-6-6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn btn-ghost" id="obDemo">Load sample log</button>
+      </div>
+    </form>
+
+    <ul class="ob-points">
+      <li>Everything is saved instantly to this browser's local storage — no database, no sign-up, no server.</li>
+      <li>Follow-ups are colour-coded by date &amp; time: <b class="c-red">today</b>, <b class="c-amber">soon</b>, <b class="c-green">later</b>, <b class="c-overdue">overdue</b>.</li>
+      <li>One tap sends a prefilled WhatsApp / SMS reminder. Patient data never leaves this device.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════ APP ══════════════════════════ -->
+<div class="app" id="app" hidden>
+
+  <!-- ── left rail / top panel ── -->
+  <aside class="rail">
+    <div class="brand">
+      <img src="assets/logo.svg" alt="" width="38" height="38" class="brand-mark" />
+      <div class="brand-text">
+        <span class="brand-name">ReturnPulse</span>
+        <span class="brand-sub ai-pill sm"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4L12 2z"/></svg>AI-driven</span>
+      </div>
+    </div>
+
+    <button class="clinic-chip" id="clinicChip" type="button" title="Edit clinic details">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 12h1m2 0h1m-4 4h1m2 0h1m-4 4h1m2 0h1"/></svg>
+      <span class="clinic-name" id="clinicNameLabel">Clinic</span>
+      <svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+    </button>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <span>Smart triage</span>
+        <button class="icon-btn" id="clearFilters" title="Reset filters" hidden>
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="chips" id="filterChips"></div>
+      <label class="field field-sm">
+        <span class="field-label">Department</span>
+        <select id="deptFilter" class="input"></select>
+      </label>
+      <div class="risk-legend">
+        <span><i class="dot d-overdue"></i>Overdue</span>
+        <span><i class="dot d-today"></i>Today</span>
+        <span><i class="dot d-tomorrow"></i>Tomorrow</span>
+        <span><i class="dot d-soon"></i>2–3 days</span>
+        <span><i class="dot d-week"></i>This week</span>
+        <span><i class="dot d-later"></i>Later</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-block" id="addBtnRail">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+      New follow-up
+    </button>
+
+    <div class="rail-foot">
+      <button class="link-btn" id="openSettings">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-2.9 1.2v.2a2 2 0 11-4 0v-.1a1.7 1.7 0 00-3-1.2l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00-1.2-2.9H3a2 2 0 110-4h.1a1.7 1.7 0 001.2-3l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 003-1.2V3a2 2 0 114 0v.1a1.7 1.7 0 002.9 1.2l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 001.2 2.9h.2a2 2 0 110 4h-.1a1.7 1.7 0 00-1.6 1z"/></svg>
+        Templates &amp; settings
+      </button>
+      <button class="link-btn" id="exportBtn">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+        Backup / restore
+      </button>
+      <button class="link-btn" id="themeBtn">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+        <span id="themeBtnLabel">Dark mode</span>
+      </button>
+      <div class="save-flag" id="saveFlag">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+        Saved to this device
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── main column ── -->
+  <main class="main">
+    <div class="warn-bar" id="storageWarn" hidden>
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 16H3l9-16z"/><path d="M12 9v4m0 3h.01"/></svg>
+      <div><b>This browser is blocking local storage.</b> ReturnPulse keeps every record in
+        <code>localStorage</code>, so nothing will be saved in this mode. Serve the folder over
+        <code>http://</code> or <code>https://</code> (for example <code>python3 -m http.server 8080</code>)
+        instead of opening <code>index.html</code> directly from the disk, and avoid private/incognito
+        windows if they block site data.</div>
+    </div>
+    <header class="topbar">
+      <div class="search">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+        <input id="search" class="search-input" type="search" placeholder="Search name, phone, department…" autocomplete="off" />
+        <button class="icon-btn" id="searchClear" hidden aria-label="Clear search">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <label class="sort-wrap">
+        <span class="sr-only">Sort</span>
+        <select id="sortBy" class="input input-sm">
+          <option value="date-asc">Soonest first</option>
+          <option value="date-desc">Latest first</option>
+          <option value="risk-desc">Highest risk first</option>
+          <option value="name-asc">Name A–Z</option>
+          <option value="created-desc">Recently added</option>
+        </select>
+      </label>
+    </header>
+
+    <div class="ai-bar" id="aiBar"></div>
+
+    <div class="list" id="list"></div>
+    <div class="empty" id="empty" hidden></div>
+    <footer class="foot">
+      <p><b>ReturnPulse</b> · on-device follow-up desk. Data lives only in this browser's local storage.</p>
+      <p class="fine">Smart triage scoring is a transparent, rule-based engine that runs locally — no cloud, no accounts, no patient data uploaded.</p>
+    </footer>
+  </main>
+
+  <button class="fab" id="fab" aria-label="New follow-up">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+  </button>
+</div>
+
+<!-- ══════════════════════════ PATIENT FORM ══════════════════════════ -->
+<div class="modal-root" id="patientModal" hidden>
+  <div class="modal-backdrop" data-close="patientModal"></div>
+  <div class="modal modal-sheet" role="dialog" aria-modal="true" aria-labelledby="patientModalTitle">
+    <div class="modal-head">
+      <h2 id="patientModalTitle">New follow-up</h2>
+      <button class="icon-btn" data-close="patientModal" aria-label="Close">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <form id="patientForm" class="modal-body" autocomplete="off" novalidate>
+      <input type="hidden" id="pId" />
+
+      <label class="field">
+        <span class="field-label">Patient name <em>*</em></span>
+        <input id="pName" class="input" type="text" required maxlength="80" placeholder="Full name" />
+        <span class="field-err" id="errName" hidden>Please enter the patient's name.</span>
+      </label>
+
+      <div class="grid-2">
+        <label class="field">
+          <span class="field-label">Phone number <em>*</em></span>
+          <input id="pPhone" class="input" type="tel" required placeholder="9876543210" maxlength="20" inputmode="tel" />
+          <span class="field-hint" id="phonePreview"></span>
+          <span class="field-err" id="errPhone" hidden>Enter at least 6 digits.</span>
+        </label>
+        <label class="field">
+          <span class="field-label">Department <em>*</em></span>
+          <select id="pDept" class="input" required></select>
+        </label>
+      </div>
+
+      <div class="grid-2">
+        <label class="field">
+          <span class="field-label">Checkup date <em>*</em></span>
+          <input id="pDate" class="input" type="date" required />
+          <span class="field-hint" id="dateHint"></span>
+          <span class="field-err" id="errDate" hidden>Pick a date.</span>
+        </label>
+        <label class="field">
+          <span class="field-label">Appointment time <span class="opt">(optional)</span></span>
+          <input id="pTime" class="input" type="time" />
+          <span class="field-hint">Time makes today's cards more precise.</span>
+        </label>
+      </div>
+
+      <div class="grid-2">
+        <label class="field">
+          <span class="field-label">Doctor <span class="opt">(optional)</span></span>
+          <input id="pDoctor" class="input" type="text" maxlength="60" placeholder="Dr. …" />
+        </label>
+        <label class="field">
+          <span class="field-label">Status</span>
+          <select id="pStatus" class="input">
+            <option value="scheduled">Scheduled</option>
+            <option value="reminded">Reminder sent</option>
+            <option value="arrived">Attended</option>
+            <option value="noshow">No-show</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Notes <span class="opt">(optional)</span></span>
+        <textarea id="pNote" class="input" rows="2" maxlength="240" placeholder="BP review, bring reports, fasting sample…"></textarea>
+      </label>
+
+      <div class="ai-note" id="formAiNote"></div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close="patientModal">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="patientSave">Save follow-up</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════ REMIND SHEET ══════════════════════════ -->
+<div class="modal-root" id="remindModal" hidden>
+  <div class="modal-backdrop" data-close="remindModal"></div>
+  <div class="modal modal-sheet modal-wide" role="dialog" aria-modal="true" aria-labelledby="remindTitle">
+    <div class="modal-head">
+      <h2 id="remindTitle">Send reminder</h2>
+      <button class="icon-btn" data-close="remindModal" aria-label="Close">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="remind-who" id="remindWho"></div>
+
+      <div class="tmpl-tabs" id="tmplTabs" role="tablist"></div>
+      <div class="ai-note" id="remindAiNote"></div>
+
+      <label class="field">
+        <span class="field-label">Message <span class="opt">(editable before sending)</span></span>
+        <textarea id="remindText" class="input msg" rows="6"></textarea>
+        <span class="field-hint"><span id="msgCount">0</span> characters · <span id="msgParts">1</span> SMS part(s)</span>
+      </label>
+
+      <div class="send-grid">
+        <a class="btn btn-wa" id="sendWa" target="_blank" rel="noopener">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm0 2a8 8 0 110 16 8 8 0 010-16zm-3 4c-.3 0-.6.1-.8.4-.3.3-.8 1-.8 2.2s.8 2.4.9 2.6c.1.2 1.6 2.7 4 3.6 2 .8 2.4.6 2.8.6.4 0 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-1.6-.8c-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1-.3-.1-1.1-.4-2-1.3-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.5-.6c.1-.2.1-.3 0-.5l-.7-1.6c-.1-.3-.3-.4-.5-.4z"/></svg>
+          WhatsApp
+        </a>
+        <a class="btn btn-sms" id="sendSms">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4V4z"/></svg>
+          SMS
+        </a>
+        <a class="btn btn-call" id="sendCall">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a12 12 0 005 5L15 12l5 2v4a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></svg>
+          Call
+        </a>
+        <button class="btn btn-soft" id="copyMsg" type="button">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+          Copy message
+        </button>
+        <button class="btn btn-soft" id="copyNum" type="button">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+          <span id="copyNumLabel">Copy number</span>
+        </button>
+      </div>
+
+      <div class="remind-history" id="remindHistory"></div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" id="remindMark">Mark as reminded</button>
+        <button type="button" class="btn btn-primary" data-close="remindModal">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ SETTINGS ══════════════════════════ -->
+<div class="modal-root" id="settingsModal" hidden>
+  <div class="modal-backdrop" data-close="settingsModal"></div>
+  <div class="modal modal-sheet modal-wide" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-head">
+      <h2 id="settingsTitle">Templates &amp; settings</h2>
+      <button class="icon-btn" data-close="settingsModal" aria-label="Close">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="set-sec">
+        <h3>Clinic</h3>
+        <div class="grid-2">
+          <label class="field">
+            <span class="field-label">Clinic name</span>
+            <input id="sClinic" class="input" type="text" maxlength="60" />
+          </label>
+          <label class="field">
+            <span class="field-label">Clinic phone (shown in messages)</span>
+            <input id="sClinicPhone" class="input" type="tel" maxlength="24" placeholder="+91 98765 43210" />
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label">Default country code <span class="opt">(used for WhatsApp when a number has none)</span></span>
+          <input id="sCountry" class="input" type="text" maxlength="5" placeholder="91" />
+        </label>
+      </div>
+
+      <div class="set-sec">
+        <h3>Reminder templates</h3>
+        <p class="set-help">
+          Merge fields: <code>{{name}}</code> <code>{{clinic}}</code> <code>{{date}}</code> <code>{{time}}</code>
+          <code>{{dept}}</code> <code>{{doctor}}</code> <code>{{phone}}</code> <code>{{days}}</code>
+        </p>
+        <div id="tmplEditor"></div>
+        <button class="btn btn-ghost btn-sm" id="resetTmpl" type="button">Restore the 3 default templates</button>
+      </div>
+
+      <div class="set-sec">
+        <h3>Data</h3>
+        <p class="set-help">
+          Your log lives in this browser's local storage under <code>returnpulse.*</code>. Clearing browser data
+          deletes it — use backup before switching devices.
+        </p>
+        <div class="btn-row">
+          <button class="btn btn-soft" id="doExport" type="button">Download backup (.json)</button>
+          <label class="btn btn-soft btn-file">
+            Restore backup
+            <input type="file" id="doImport" accept="application/json,.json" hidden />
+          </label>
+          <button class="btn btn-danger-ghost" id="doClear" type="button">Delete all records</button>
+        </div>
+        <p class="set-help" id="storageInfo"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "ReturnPulse — clinic no-show reminders",
+  "short_name": "ReturnPulse",
+  "description": "AI-driven no-show reminder desk for clinics. Follow-up log, urgency colour coding and prefilled WhatsApp / SMS reminders. Data stays in this browser.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#eef3f7",
+  "theme_color": "#0f766e",
+  "categories": ["medical", "productivity", "health"],
+  "icons": [
+    { "src": "assets/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "assets/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

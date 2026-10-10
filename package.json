@@ -1,0 +1,13 @@
+{
+  "name": "returnpulse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ReturnPulse — on-device no-show reminder desk for clinics (static site, localStorage only)",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1"
+  }
+}

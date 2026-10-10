@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 128" width="256" height="128" role="img" aria-label="ReturnPulse">
+  <defs>
+    <linearGradient id="rp-text" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0e9f96"/>
+      <stop offset="1" stop-color="#4b45d6"/>
+    </linearGradient>
+  </defs>
+  <path d="M4 74 H44 L60 30 L82 112 L102 56 L116 82 H252"
+        fill="none" stroke="url(#rp-text)" stroke-width="14"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="228" cy="34" r="14" fill="url(#rp-text)"/>
+  <circle cx="228" cy="34" r="24" fill="url(#rp-text)" opacity="0.2"/>
+</svg>
