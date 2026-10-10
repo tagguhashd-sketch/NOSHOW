@@ -87,7 +87,6 @@ const submit = (win, id) =>
 
 const passOnboarding = (win, clinic = 'Sunrise Clinic') => {
   setVal(win, 'obClinic', clinic);
-  setVal(win, 'obClinicPhone', '+91 98765 00000');
   submit(win, 'obForm');
 };
 
@@ -118,11 +117,30 @@ describe('boot & onboarding', () => {
     assert.match(win.document.title, /ReturnPulse/);
   });
 
-  test('refuses to continue with an empty clinic name', async () => {
+  test('the gate is exactly one field — nothing else to fill in', async () => {
+    const { win } = await boot();
+    const form = $(win, 'obForm');
+    const fields = Array.from(form.querySelectorAll('input, select, textarea'));
+    assert.equal(fields.length, 1, 'the form must hold a single input, found ' + fields.length);
+    assert.equal(fields[0].id, 'obClinic');
+    assert.equal(form.querySelectorAll('button[type=submit]').length, 1);
+    // the clinic phone moved to settings; onboarding must not ask for it
+    assert.equal(win.document.getElementById('obClinicPhone'), null);
+    assert.equal($(win, 'sClinicPhone') !== null, true, 'but it stays editable in settings');
+  });
+
+  test('refuses to continue with an empty clinic name, then clears the error on typing', async () => {
     const { win } = await boot();
     submit(win, 'obForm');
     assert.equal($(win, 'app').hidden, true);
+    assert.equal($(win, 'obErr').hidden, false, 'an inline error must appear');
     assert.equal(win.localStorage.getItem('returnpulse.settings.v1'), null);
+
+    setVal(win, 'obClinic', 'S');
+    assert.equal($(win, 'obErr').hidden, true);
+    setVal(win, 'obClinic', 'Sunrise Clinic');
+    submit(win, 'obForm');
+    assert.equal($(win, 'app').hidden, false);
   });
 
   test('writes the clinic name to localStorage immediately and reveals the app', async () => {
@@ -427,7 +445,16 @@ describe('template engine', () => {
     assert.ok(!/ at \./.test(out), 'must not read "at .": ' + out);
     assert.ok(!/\s{2,}/.test(out), 'no double spaces: ' + out);
     assert.match(out, /^Hi Ann, your Physiotherapy review at Sunrise Clinic is on /);
-    assert.match(out, /Call \+91 98765 00000\.$/);
+    // clinic phone is not collected at onboarding any more, so its fragment drops out
+    assert.ok(!/Call/.test(out), 'the phone fragment must vanish when no clinic phone is set: ' + out);
+
+    // set it the real way — through settings — and it comes back
+    click(win, $(win, 'openSettings'));
+    setVal(win, 'sClinicPhone', '+91 98765 00000');
+    const withPhone = RP.renderTemplate(body, {
+      name: 'Ann', dept: 'Physiotherapy', date: key(1), time: '', doctor: '', status: 'scheduled'
+    });
+    assert.match(withPhone, /Call \+91 98765 00000\.$/);
   });
 
   test('{{days}} renders a human phrase', async () => {

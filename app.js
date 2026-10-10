@@ -1010,6 +1010,7 @@
   function showOnboarding() {
     $('onboarding').hidden = false;
     $('app').hidden = true;
+    $('obErr').hidden = true;
     setTimeout(function () { $('obClinic').focus(); }, 80);
   }
   function showApp() {
@@ -1017,15 +1018,18 @@
     $('app').hidden = false;
     render();
   }
+
+  /** The only gate: a clinic name. One field, then straight to the dashboard. */
   function finishOnboarding(withDemo) {
     const name = $('obClinic').value.trim();
     if (!name) {
+      $('obErr').hidden = false;
       $('obClinic').focus();
       toast('Please enter your clinic name to start', 'err');
       return;
     }
+    $('obErr').hidden = true;
     settings.clinic = name;
-    settings.clinicPhone = $('obClinicPhone').value.trim();
     saveSettings();
     if (withDemo) seedDemo();
     showApp();
@@ -1075,6 +1079,7 @@
   function wire() {
     // onboarding
     $('obForm').addEventListener('submit', function (e) { e.preventDefault(); finishOnboarding(false); });
+    $('obClinic').addEventListener('input', function () { $('obErr').hidden = true; });
     $('obDemo').addEventListener('click', function () {
       if (!$('obClinic').value.trim()) { $('obClinic').value = 'Sunrise Multi-Speciality Clinic'; }
       finishOnboarding(true);

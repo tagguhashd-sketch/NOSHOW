@@ -27,9 +27,9 @@ can also use *Install app* to pin it to the home screen / start menu.
 
 ## The flow
 
-1. **Clinic name first.** The first screen asks for the clinic name (and optional clinic
-   phone). Nothing else is reachable until that is set — it is stored as
-   `returnpulse.settings.v1`.
+1. **Clinic name, then the dashboard.** The first screen has one field — the clinic name.
+   That's the whole gate; it is stored as `returnpulse.settings.v1` and the dashboard opens.
+   (Clinic phone and country code are optional and live in **Templates & settings**.)
 2. **Log a follow-up.** Patient name, phone number, the date they must come back, an
    optional appointment time, department, doctor, notes, status.
 3. **Chronological order.** The log is sorted by date + time, earliest first, and grouped

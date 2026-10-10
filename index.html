@@ -17,36 +17,26 @@
 <div class="onboarding" id="onboarding" hidden>
   <div class="ob-card">
     <div class="ob-logo">
-      <img src="assets/logo.svg" alt="" width="72" height="72" />
+      <img src="assets/logo.svg" alt="" width="76" height="76" />
     </div>
     <h1 class="ob-title">ReturnPulse</h1>
     <p class="ob-tag"><span class="ai-pill"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4L12 2z"/></svg>AI-driven</span> no-show reminder desk for your clinic</p>
 
     <form id="obForm" class="ob-form" autocomplete="off">
       <label class="field">
-        <span class="field-label">Clinic name <em>*</em></span>
-        <input id="obClinic" class="input" type="text" placeholder="e.g. Sunrise Multi-Speciality Clinic" required maxlength="60" />
+        <span class="field-label">Clinic name</span>
+        <input id="obClinic" class="input input-lg" type="text" placeholder="e.g. Sunrise Clinic" required maxlength="60" />
+        <span class="field-err" id="obErr" hidden>Please enter your clinic name.</span>
       </label>
 
-      <label class="field">
-        <span class="field-label">Clinic phone <span class="opt">(shown in reminders)</span></span>
-        <input id="obClinicPhone" class="input" type="tel" placeholder="+91 98765 43210" maxlength="24" />
-      </label>
-
-      <div class="ob-actions">
-        <button type="submit" class="btn btn-primary btn-lg">
-          Start
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-6-6l6 6-6 6"/></svg>
-        </button>
-        <button type="button" class="btn btn-ghost" id="obDemo">Load sample log</button>
-      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">
+        Enter dashboard
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-6-6l6 6-6 6"/></svg>
+      </button>
     </form>
 
-    <ul class="ob-points">
-      <li>Everything is saved instantly to this browser's local storage — no database, no sign-up, no server.</li>
-      <li>Follow-ups are colour-coded by date &amp; time: <b class="c-red">today</b>, <b class="c-amber">soon</b>, <b class="c-green">later</b>, <b class="c-overdue">overdue</b>.</li>
-      <li>One tap sends a prefilled WhatsApp / SMS reminder. Patient data never leaves this device.</li>
-    </ul>
+    <button type="button" class="ob-link" id="obDemo">or open the dashboard with sample patients</button>
+    <p class="ob-fine">No sign-up, no server. Everything is saved in this browser.</p>
   </div>
 </div>
 

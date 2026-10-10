@@ -183,14 +183,15 @@ select.input { appearance: none; background-image: url("data:image/svg+xml,%3Csv
 }
 .ob-tag { color: var(--muted); font-size: 14.5px; margin: 10px auto 22px; max-width: 34ch; line-height: 1.5; }
 .ob-form { text-align: left; }
-.ob-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
-.ob-actions .btn-primary { flex: 1 1 180px; }
-.ob-points { text-align: left; margin: 22px 0 0; padding: 18px 0 0 0; list-style: none; border-top: 1px dashed var(--line); display: grid; gap: 9px; }
-.ob-points li { position: relative; padding-left: 22px; font-size: 13px; color: var(--muted); line-height: 1.5; }
-.ob-points li::before {
-  content: ""; position: absolute; left: 2px; top: 7px; width: 8px; height: 8px; border-radius: 50%;
-  background: var(--brand-grad);
+.ob-form .field { margin-bottom: 12px; }
+.input-lg { padding: 14px 15px; font-size: 16.5px; }
+.ob-link {
+  display: block; width: 100%; margin-top: 12px; padding: 6px; background: none; border: 0;
+  cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 600; text-decoration: underline;
+  text-underline-offset: 3px;
 }
+.ob-link:hover { color: var(--brand-2); }
+.ob-fine { margin: 6px 0 0; font-size: 11.5px; color: var(--muted); }
 .c-red { color: var(--today); } .c-amber { color: var(--tomorrow); }
 .c-green { color: var(--week); } .c-overdue { color: var(--overdue); }
 
